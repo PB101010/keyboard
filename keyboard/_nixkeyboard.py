@@ -73,7 +73,7 @@ def build_tables():
         dump = check_output(['dumpkeys', '--keys-only'], universal_newlines=True)
     except CalledProcessError as e:
         if e.returncode == 1:
-            raise ValueError('Failed to run dumpkeys to get key names. Check if your user is part of the "tty" group, and if not, add it with "sudo useradd -a -G tty USER".')
+            raise ValueError('Failed to run dumpkeys to get key names. Check if your user is part of the "tty" group, and if not, add it with "sudo usermod -a -G tty USER".')
         else:
             raise
 
@@ -91,9 +91,15 @@ def build_tables():
     # dumpkeys consistently misreports the Windows key, sometimes
     # skipping it completely or reporting as 'alt. 125 = left win,
     # 126 = right win.
-    if (125, ()) not in to_name or to_name[(125, ())] == 'alt':
+    if (125, ()) not in to_name or to_name[(125, ())] == ['alt']:
+        to_name[(125, ())].clear()
+        if (125, ()) in from_name['alt']:
+            from_name['alt'].remove((125, ()))
         register_key((125, ()), 'windows')
-    if (126, ()) not in to_name or to_name[(126, ())] == 'alt':
+    if (126, ()) not in to_name or to_name[(126, ())] == ['alt']:
+        to_name[(126, ())].clear()
+        if (126, ()) in from_name['alt']:
+            from_name['alt'].remove((126, ()))
         register_key((126, ()), 'windows')
 
     # The menu key is usually skipped altogether, so we also add it manually.
